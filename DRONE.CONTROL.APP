@@ -52,6 +52,12 @@ ser.write(b'~' * 10): Sends the bootloader trigger sequence (you may need to adj
 
 Save and exit by pressing CTRL+X, then Y to confirm saving, and Enter to exit.
 
+0-----0-------0
+Now to fetch firmware list and download into the system and upload the selected one 
+
+pip3 install requests
+
+
 
 
 
