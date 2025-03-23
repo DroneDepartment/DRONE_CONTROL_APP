@@ -159,6 +159,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+ctrl+shift+6 , then scroll to down to select everything
 ctrl k to cut all content if there is something previously
 then copy the code and paste . by right clik
 ctrl + X , y , enter to exit
