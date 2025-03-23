@@ -159,7 +159,8 @@ def main():
 
 if __name__ == '__main__':
     main()
-
+ctrl k to cut all content if there is something previously
+then copy the code and paste . by right clik
 ctrl + X , y , enter to exit
 
 
