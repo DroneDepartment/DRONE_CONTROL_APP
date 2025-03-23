@@ -56,6 +56,112 @@ Save and exit by pressing CTRL+X, then Y to confirm saving, and Enter to exit.
 Now to fetch firmware list and download into the system and upload the selected one 
 
 pip3 install requests
+nano firmware_update.py
+
+import requests
+import os
+import subprocess
+
+# URL of ArduPilot GitHub releases
+ARDUPILOT_RELEASES_URL = 'https://api.github.com/repos/ArduPilot/ardupilot/releases'
+
+# Path to download firmware
+DOWNLOAD_DIR = '/tmp/ardupilot_firmware'
+
+# Ensure the download directory exists
+os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+
+def fetch_firmware_versions():
+    """Fetch available firmware versions from ArduPilot's GitHub."""
+    print("Fetching available firmware versions...\n")
+    response = requests.get(ARDUPILOT_RELEASES_URL)
+    if response.status_code != 200:
+        print("Failed to fetch data from ArduPilot releases.")
+        return []
+    releases = response.json()
+    firmware_versions = []
+    for release in releases:
+        for asset in release['assets']:
+            # Filtering for .apj firmware files
+            if asset['name'].endswith('.apj'):
+                firmware_versions.append({
+                    'version': release['tag_name'],
+                    'firmware_url': asset['browser_download_url'],
+                    'firmware_name': asset['name']
+                })
+    return firmware_versions
+
+def select_firmware(firmware_versions):
+    """Allow user to select the firmware version to download."""
+    if not firmware_versions:
+        print("No firmware files found.")
+        return None
+
+    # Display the list of available firmware versions
+    print("Available firmware versions:")
+    for idx, firmware in enumerate(firmware_versions):
+        print(f"{idx + 1}. {firmware['version']} ({firmware['firmware_name']})")
+
+    # User selects firmware
+    while True:
+        try:
+            choice = int(input("\nEnter the number of the firmware you want to download: ")) - 1
+            if 0 <= choice < len(firmware_versions):
+                return firmware_versions[choice]
+            else:
+                print("Invalid choice. Try again.")
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+
+def download_firmware(firmware):
+    """Download the selected firmware to the specified directory."""
+    print(f"Downloading firmware: {firmware['firmware_name']}...\n")
+    response = requests.get(firmware['firmware_url'], stream=True)
+    if response.status_code == 200:
+        firmware_path = os.path.join(DOWNLOAD_DIR, firmware['firmware_name'])
+        with open(firmware_path, 'wb') as fw_file:
+            for chunk in response.iter_content(chunk_size=128):
+                fw_file.write(chunk)
+        print(f"Firmware downloaded to {firmware_path}")
+        return firmware_path
+    else:
+        print("Failed to download firmware.")
+        return None
+
+def upload_firmware(firmware_path):
+    """Upload the firmware to the Pixhawk using dfu-util."""
+    print(f"Flashing firmware: {firmware_path} to Pixhawk...")
+    result = subprocess.run(
+        ['sudo', 'dfu-util', '-D', firmware_path],
+        capture_output=True, text=True
+    )
+    if result.returncode == 0:
+        print("Firmware successfully flashed to Pixhawk!")
+    else:
+        print(f"Error flashing firmware: {result.stderr}")
+
+def main():
+    # Fetch firmware versions from ArduPilot
+    firmware_versions = fetch_firmware_versions()
+
+    # Let the user select a firmware version
+    firmware = select_firmware(firmware_versions)
+    if not firmware:
+        return
+
+    # Download the selected firmware
+    firmware_path = download_firmware(firmware)
+    if not firmware_path:
+        return
+
+    # Upload the firmware to Pixhawk
+    upload_firmware(firmware_path)
+
+if __name__ == '__main__':
+    main()
+
+ctrl + X , y , enter to exit
+
 
 
 
