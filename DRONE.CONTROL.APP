@@ -25,3 +25,12 @@ udevadm info -q all -n /dev/ttyACM0 | grep "ID_SERIAL"
 
 copy the serial num -- Hex_ProfiCNC_CubeBlack_1C003E000751363033383531
 
+sudo nano /etc/udev/rules.d/99-pixhawk.rules
+
+add the line with updated serial and name 
+SUBSYSTEM=="tty", ATTRS{serial}=="Hex_ProfiCNC_CubeBlack_1C003E000751363033383531", SYMLINK+="pixhawk_cube_black"
+
+sudo udevadm control --reload-rules
+
+
+
