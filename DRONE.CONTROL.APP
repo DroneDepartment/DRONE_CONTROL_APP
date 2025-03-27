@@ -32,5 +32,8 @@ SUBSYSTEM=="tty", ATTRS{serial}=="Hex_ProfiCNC_CubeBlack_1C003E00075136303338353
 
 sudo udevadm control --reload-rules
 
+ls -l /dev/pixhawk_cube_black
+
+
 
 
